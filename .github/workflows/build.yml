@@ -22,7 +22,7 @@ jobs:
             -std=c++17 -fobjc-arc -O2 \
             -dynamiclib -lobjc \
             -install_name @executable_path/Frameworks/Mogger.framework/Mogger \
-            -framework UIKit -framework Foundation -framework QuartzCore \
+            -framework UIKit -framework Foundation -framework QuartzCore -framework CoreGraphics \
             -fuse-ld=lld \
             Mogger.mm -o Mogger
 
