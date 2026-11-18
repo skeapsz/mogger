@@ -5,24 +5,26 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
+          sudo apt-get update -qq || true
           sudo apt-get install -y clang lld make libplist3
 
       - name: Download iOS SDK
         run: |
           wget -q https://github.com/theos/sdks/archive/master.zip
           unzip -q master.zip
-          mv sdks-master iPhoneOS15.0.sdk
+          mv sdks-master/iPhoneOS15.6.sdk ./iPhoneOS15.6.sdk
 
       - name: Build dylib
         run: |
           clang++ -target arm64-apple-ios15.0 \
-            -isysroot ./iPhoneOS15.0.sdk \
+            -isysroot ./iPhoneOS15.6.sdk \
             -std=c++17 -fobjc-arc -O2 \
             -dynamiclib -lobjc \
             -install_name @executable_path/Frameworks/Mogger.framework/Mogger \
