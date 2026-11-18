@@ -4,6 +4,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import <mach/mach.h>
+#import <mach-o/dyld.h>
 #import <dlfcn.h>
 #import <cmath>
 
@@ -57,10 +58,11 @@ static bool worldToScreen(Vec3 w, const float* m, int sw, int sh, Vec2& out) {
     return true;
 }
 
+// ИСПРАВЛЕНО: правильный тип для длины (mach_msg_type_number_t)
 template<typename T>
 static T rd(uint64_t addr) {
     T v{};
-    vm_size_t sz = sizeof(T);
+    mach_msg_type_number_t sz = sizeof(T);
     vm_address_t local = 0;
     if (vm_read(mach_task_self(), addr, sizeof(T), &local, &sz) == KERN_SUCCESS) {
         memcpy(&v, (void*)local, sizeof(T));
@@ -119,7 +121,8 @@ static bool collectPlayers(PlayerInfo* out, int maxOut, int& count) {
     Vec3 vOff = rd<Vec3>(lp + off::m_vecViewOffset);
     g_eye = {lpPos.x + vOff.x, lpPos.y + vOff.y, lpPos.z + vOff.z};
 
-    vm_size_t vmsz = sizeof(g_vm);
+    // ИСПРАВЛЕНО
+    mach_msg_type_number_t vmsz = sizeof(g_vm);
     vm_address_t local = 0;
     if (vm_read(mach_task_self(), client + off::dwViewMatrix, sizeof(g_vm), &local, &vmsz) == KERN_SUCCESS) {
         memcpy(g_vm, (void*)local, sizeof(g_vm));
