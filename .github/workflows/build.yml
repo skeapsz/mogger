@@ -9,12 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
-          sudo apt-get update -qq || true
-          sudo apt-get install -y clang lld make libplist3
-
       - name: Download iOS SDK
         run: |
           wget -q https://github.com/theos/sdks/archive/master.zip
