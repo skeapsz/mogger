@@ -1,18 +1,12 @@
 // Mogger.mm — Standoff 2 / STANDLEO cheat
-// build: clang++ -target arm64-apple-ios15.0 -dynamiclib -fobjc-arc ...
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import <mach/mach.h>
 #import <dlfcn.h>
-#import <sys/sysctl.h>
-#import <sys/ptrace.h>
 #import <cmath>
 
-// ============================================================
-// OFFSETS — placeholders, update via Il2CppDumper on STANDLEO ipa
-// ============================================================
 namespace off {
     constexpr uint64_t dwEntityList      = 0x1A1B4C0;
     constexpr uint64_t dwLocalPlayerPawn = 0x1873C20;
@@ -31,7 +25,6 @@ namespace off {
     constexpr uint64_t m_fFlags          = 0x3F8;
     constexpr uint64_t m_nButtons         = 0x1738;
     constexpr uint64_t m_hObserverTarget = 0x1E58;
-    constexpr uint64_t m_angEyeAngles    = 0x1E00;
 
     constexpr uint64_t m_viewPitch       = 0x1DC;
     constexpr uint64_t m_viewYaw         = 0x1E0;
@@ -48,9 +41,6 @@ namespace off {
     constexpr uint64_t dwPlantedC4       = 0x1A5E0F8;
 }
 
-// ============================================================
-// math
-// ============================================================
 struct Vec3 { float x, y, z; };
 struct Vec2 { float x, y; };
 
@@ -67,9 +57,6 @@ static bool worldToScreen(Vec3 w, const float* m, int sw, int sh, Vec2& out) {
     return true;
 }
 
-// ============================================================
-// memory
-// ============================================================
 template<typename T>
 static T rd(uint64_t addr) {
     T v{};
@@ -93,9 +80,6 @@ static uint64_t getEntity(uint64_t listBase, int idx) {
     return rd<uint64_t>(chunk + 0x78 * (idx & 0x1FF));
 }
 
-// ============================================================
-// config
-// ============================================================
 static struct {
     bool esp = true;
     bool filled = false;
@@ -112,9 +96,6 @@ static struct {
     uint64_t gameBase = 0;
 } g_cfg;
 
-// ============================================================
-// player snapshot
-// ============================================================
 struct PlayerInfo {
     uint64_t pawn;
     Vec3 origin, head, neck, chest, pelvis, legL, legR, armL, armR;
@@ -180,9 +161,6 @@ static bool collectPlayers(PlayerInfo* out, int maxOut, int& count) {
     return count > 0;
 }
 
-// ============================================================
-// ESP overlay view
-// ============================================================
 @interface MoggerESPView : UIView
 @end
 
@@ -336,9 +314,6 @@ static void drawSkeleton(CGContextRef ctx, PlayerInfo& p, CGSize size, UIColor* 
 
 @end
 
-// ============================================================
-// Aimbot
-// ============================================================
 @interface MoggerAimbot : NSObject
 + (instancetype)shared;
 - (void)start;
@@ -362,7 +337,6 @@ static void drawSkeleton(CGContextRef ctx, PlayerInfo& p, CGSize size, UIColor* 
 - (void)tick {
     if (!g_cfg.gameBase) return;
 
-    // keep local state fresh
     PlayerInfo snap[64]; int sn = 0;
     collectPlayers(snap, 64, sn);
 
@@ -459,9 +433,6 @@ static void drawSkeleton(CGContextRef ctx, PlayerInfo& p, CGSize size, UIColor* 
 
 @end
 
-// ============================================================
-// Spectator overlay
-// ============================================================
 @interface MoggerSpecView : UIView
 @end
 @implementation MoggerSpecView
@@ -479,9 +450,6 @@ static void drawSkeleton(CGContextRef ctx, PlayerInfo& p, CGSize size, UIColor* 
 }
 @end
 
-// ============================================================
-// Menu
-// ============================================================
 @interface MoggerMenuVC : UIViewController
 @end
 
@@ -603,9 +571,6 @@ static void drawSkeleton(CGContextRef ctx, PlayerInfo& p, CGSize size, UIColor* 
 
 @end
 
-// ============================================================
-// button target + entry
-// ============================================================
 static UIWindow* g_win = nil;
 static UIWindow* g_menuWin = nil;
 
